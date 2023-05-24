@@ -9,21 +9,11 @@ import static java.lang.System.getenv;
 
 public class UserDao {
 
-    // 코드 중복 제거
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Map<String, String> env = getenv();
-        String dbHost = env.get("DB_HOST");
-        String dbUser = env.get("DB_USER");
-        String dbPassword = env.get("DB_PASSWORD");
-
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection conn = DriverManager.getConnection(dbHost, dbUser, dbPassword);
-        return conn;
-    }
+    SimpleConnectionMaker connectionMaker = new SimpleConnectionMaker();
 
     public void add(User user) throws ClassNotFoundException, SQLException {
 
-        Connection conn = getConnection();
+        Connection conn = connectionMaker.makeNewConnection();
         PreparedStatement pstmt = conn.prepareStatement("insert into users(id, name, password) values(?, ?, ?)");
         pstmt.setString(1, user.getId());
         pstmt.setString(2, user.getName());
@@ -36,7 +26,7 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection conn = getConnection();
+        Connection conn = connectionMaker.makeNewConnection();
 
         PreparedStatement pstmt = conn.prepareStatement("select id, name, password from users where id = ?");
         pstmt.setString(1, id);
@@ -59,12 +49,12 @@ public class UserDao {
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
         UserDao userDao = new UserDao();
         User user = new User();
-        user.setId("2");
-        user.setName("seonyoung2");
-        user.setPassword("aa");
+        user.setId("4");
+        user.setName("seonyoung4");
+        user.setPassword("cc");
         userDao.add(user);
 
-        User selectedUser = userDao.get("1");
+        User selectedUser = userDao.get("4");
         System.out.println(selectedUser.getId());
         System.out.println(selectedUser.getName());
         System.out.println(selectedUser.getPassword());
